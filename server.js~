@@ -1,0 +1,28 @@
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const port = 3000;
+
+const Gpio = require('onoff').Gpio; //include onoff to interact with the GPIO
+const LED = new Gpio(17, 'out');
+
+// Set template engine
+app.set('view engine', 'ejs');
+
+app.get('/', (req, res) => { res.render('index'); });
+
+io.on('connection', socket => {
+	socket.on('light', (data = 0) => {
+		if (data != LED.readSync()) {
+			LED.writeSync(data);
+		}
+	});
+});
+
+app.listen(port, () => console.log(`Socket test running on port ${port}`));
+
+process.on('SIGINT', function () { //on ctrl+c
+  LED.writeSync(0); // Turn LED off
+  LED.unexport(); // Unexport LED GPIO to free resources
+  process.exit(); //exit completely
+});

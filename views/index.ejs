@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Socket Test</title>
+    <style>
+      h1 {
+        font-family: Helvetica, sans-serif;
+        color: #888;
+      }
+
+      .directions {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-auto-rows: 1fr 1fr 1fr;
+        grid-template-areas: "a up b" "left c right" "d down e";
+      }
+
+      .direction {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(#eee, #ccc);
+        border: none;
+        border-radius: 50%;
+        position: relative;
+      }
+
+      .direction::after {
+        content: '';
+        width: 0;
+        height: 0;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        position: absolute;
+        margin: auto;
+        border: 15px solid transparent;
+      }
+
+      .direction:focus {
+        outline: 0;
+      }
+
+      .up {
+        grid-area: up;
+      }
+      
+      .up::after {
+        border-bottom-color: rgba(0, 0, 0, 0.3);
+        transform: translateY(-9px);
+      }
+
+      .left {
+        grid-area: left;
+      }
+
+      .left::after {
+        border-right-color: rgba(0, 0, 0, 0.3);
+        transform: translateX(-10px);
+      }
+
+      .right {
+        grid-area: right;
+      }
+
+      .right::after {
+        border-left-color: rgba(0, 0, 0, 0.3);
+        transform: translateX(10px);
+      }
+
+      .down {
+        grid-area: down;
+      }
+
+      .down::after {
+        border-top-color: rgba(0, 0, 0, 0.3);
+        transform: translateY(10px);
+      }
+
+      .on {
+        background: #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Socket Test</h1>
+
+    <div class="directions">
+      <button class="direction up"></button>
+      <button class="direction left"></button>
+      <button class="direction right"></button>
+      <button class="direction down"></button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
+    <script>
+      const socket = io();
+      const codes = {
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down',
+      };
+
+      window.addEventListener('keydown', turnLightOn);
+      window.addEventListener('keyup', turnLightOff);
+
+      function turnLightOn(event) {
+        document.querySelector(`.${codes[event.keyCode]}`).classList.add('on');
+        socket.emit('light', { color: codes[event.keyCode].toUpperCase(), on: 1});
+      }
+
+      function turnLightOff(event) {
+        document.querySelector(`.${codes[event.keyCode]}`).classList.remove('on');
+        socket.emit('light', { color: codes[event.keyCode].toUpperCase(), on: 0});
+      }
+    </script>
+  </body>
+</html>
